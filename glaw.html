@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>telechanel_zystream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --panel:#111111;
+  --panel2:#161616;
+  --line:rgba(255,255,255,.08);
+  --line2:rgba(255,255,255,.12);
+  --text:#f5f5f5;
+  --soft:#a3a3a3;
+  --dim:#737373;
+  --mark:#e11d48;
+  --ok:#22c55e;
+}
+html,body{height:100%}
+body{
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;border:0;background:0;color:inherit;cursor:pointer}
+
+.shell{
+  display:grid;
+  grid-template-columns:1.05fr 0.95fr;
+  min-height:100vh;min-height:100dvh;
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+}
+
+/* LEFT */
+.stage{
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  padding:28px 28px 24px;
+  position:relative;
+  overflow:hidden;
+  border-right:1px solid var(--line);
+}
+.stage::before{
+  content:'';
+  position:absolute;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(225,29,72,.14),transparent 70%);
+  top:-120px;right:-80px;pointer-events:none;
+}
+.stage-top{
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:1;margin-bottom:28px;gap:12px;flex-wrap:wrap;
+}
+.brand{font-size:14px;font-weight:700;letter-spacing:-.02em}
+.brand span{color:var(--soft);font-weight:500}
+.top-right{display:flex;align-items:center;gap:10px}
+.badge{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:7px 12px;border:1px solid var(--line);
+  display:inline-flex;align-items:center;gap:8px;
+}
+.badge i{width:6px;height:6px;border-radius:50%;background:var(--dim)}
+.badge.on{border-color:rgba(34,197,94,.4);color:#4ade80}
+.badge.on i{background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+.badge.off{border-color:rgba(225,29,72,.35);color:#fb7185}
+.badge.off i{background:var(--mark)}
+.btn-acc{
+  font-size:12px;font-weight:600;
+  padding:7px 14px;border:1px solid var(--line2);
+  color:var(--text);transition:background .15s,border-color .15s;
+}
+.btn-acc:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
+
+.stage-body{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center}
+.kicker{
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:14px;
+}
+.display{
+  font-size:clamp(36px,6vw,56px);
+  font-weight:800;letter-spacing:-.04em;line-height:1.05;
+  margin-bottom:10px;
+}
+.display.on{color:#4ade80}
+.display.off{color:#fb7185}
+.program{
+  font-size:clamp(18px,2.5vw,24px);
+  font-weight:600;color:var(--soft);
+  margin-bottom:8px;min-height:1.2em;
+}
+.meta{font-size:14px;color:var(--dim);margin-bottom:24px;font-weight:500}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px}
+.btn{
+  font-size:13px;font-weight:600;
+  padding:12px 18px;
+  transition:opacity .15s,background .15s,color .15s,border-color .15s;
+}
+.btn-fill{background:var(--text);color:var(--bg)}
+.btn-fill:hover{opacity:.9}
+.btn-line{border:1px solid var(--line);color:var(--soft)}
+.btn-line:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+
+.monitor{
+  position:relative;z-index:1;
+  margin-top:auto;
+  border:1px solid var(--line);
+  background:#000;
+  aspect-ratio:16/9;
+  max-height:280px;
+  overflow:hidden;
+}
+.monitor iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.monitor .fall{
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;
+  background:var(--panel);color:var(--dim);font-size:13px;font-weight:500;
+}
+.monitor .fall.show{display:flex}
+.monitor-cap{
+  display:flex;justify-content:space-between;
+  padding:8px 0 0;font-size:11px;color:var(--dim);font-weight:500;
+  position:relative;z-index:1;
+}
+
+/* RIGHT — also dark */
+.side{
+  background:var(--panel);
+  display:flex;flex-direction:column;
+  min-height:0;
+}
+.side-head{
+  padding:28px 28px 20px;
+  border-bottom:1px solid var(--line);
+}
+.side-head .label{
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:8px;
+}
+.side-head h2{
+  font-size:24px;font-weight:800;letter-spacing:-.03em;
+  margin-bottom:4px;
+}
+.side-head .day{font-size:13px;color:var(--soft);font-weight:500}
+
+.upcoming{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-bottom:1px solid var(--line);
+  background:var(--panel2);
+}
+.upcoming div{
+  padding:14px 16px;
+  border-right:1px solid var(--line);
+}
+.upcoming div:last-child{border-right:0}
+.upcoming .l{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:4px;
+}
+.upcoming .v{font-size:13px;font-weight:700;letter-spacing:-.01em}
+
+.list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.item{
+  display:grid;grid-template-columns:64px 1fr auto;
+  gap:12px;align-items:baseline;
+  padding:15px 28px;
+  border-bottom:1px solid var(--line);
+  transition:background .15s;
+}
+.item:hover{background:rgba(255,255,255,.02)}
+.item.now{background:rgba(34,197,94,.08)}
+.item.next{background:rgba(225,29,72,.05)}
+.item.past{opacity:.35}
+.item .t{
+  font-variant-numeric:tabular-nums;
+  font-weight:700;font-size:14px;
+  color:#fb7185;
+}
+.item.now .t{color:#4ade80}
+.item .n{font-weight:600;font-size:14px}
+.item .n small{
+  display:block;font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:2px;
+}
+.item.now .n small{color:#4ade80}
+.item.next .n small{color:#fb7185}
+.item .y{font-size:12px;color:var(--dim);font-weight:500}
+.empty{padding:40px 28px;text-align:center;color:var(--dim);font-size:13px}
+
+.side-foot{
+  padding:16px 28px;
+  border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  justify-content:space-between;
+  font-size:12px;color:var(--dim);font-weight:500;
+}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{
+  font-size:11px;font-weight:600;
+  padding:4px 10px;border:1px solid var(--line);
+  color:var(--soft);
+}
+.side-foot .ts{font-variant-numeric:tabular-nums}
+
+
+/* dev editor */
+.dev-bar{
+  display:none;padding:12px 28px;border-bottom:1px solid var(--line);
+  background:rgba(225,29,72,.08);align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.dev-bar.on{display:flex}
+.dev-bar span{font-size:12px;font-weight:600;color:#fb7185}
+.dev-bar button{
+  font-size:12px;font-weight:600;padding:7px 12px;
+  border:1px solid var(--line);color:var(--text);cursor:pointer;
+}
+.dev-bar button:hover{background:rgba(255,255,255,.05)}
+.dev-bar button.pri{background:var(--text);color:var(--bg);border-color:var(--text)}
+.dev-ed{
+  display:none;padding:16px 28px;border-bottom:1px solid var(--line);
+  background:var(--panel2);flex-direction:column;gap:10px;
+}
+.dev-ed.on{display:flex}
+.dev-ed .row{
+  display:grid;grid-template-columns:80px 1fr 80px 36px;gap:8px;align-items:center;
+}
+.dev-ed input{
+  width:100%;padding:8px 10px;font:inherit;font-size:13px;
+  background:var(--bg);border:1px solid var(--line);color:var(--text);outline:none;
+}
+.dev-ed input:focus{border-color:rgba(255,255,255,.22)}
+.dev-ed .del{
+  border:1px solid var(--line);color:#fb7185;padding:8px;cursor:pointer;font-size:14px;
+}
+.dev-ed .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.dev-ed .actions button{
+  font-size:12px;font-weight:600;padding:8px 12px;
+  border:1px solid var(--line);cursor:pointer;color:var(--text);
+}
+.dev-ed .actions button.pri{background:var(--text);color:var(--bg);border-color:var(--text)}
+.dev-ed .note{font-size:11px;color:var(--dim);margin-top:2px}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  z-index:20;
+  background:var(--text);color:var(--bg);
+  font-size:13px;font-weight:600;
+  padding:12px 20px;
+  opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:900px){
+  .stage{padding:20px 20px 16px;border-right:0;border-bottom:1px solid var(--line)}
+  .stage-body{flex:none;margin-bottom:20px}
+  .monitor{max-height:none}
+  .display{font-size:40px}
+  .side-head{padding:20px}
+  .item{padding:14px 20px}
+  .side-foot{padding:14px 20px}
+  .upcoming{grid-template-columns:1fr}
+  .upcoming div{border-right:0;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <section class="stage">
+    <div class="stage-top">
+      <div class="brand">telechanel_<span>zystream</span></div>
+      <div class="top-right">
+        <div class="badge off" id="badge"><i></i><span id="badgeT">offline</span></div>
+        <a class="btn-acc" href="https://zystrimregistred.netlify.app/" id="accBtn">Войти</a>
+      </div>
+    </div>
+
+    <div class="stage-body">
+      <div class="kicker" id="kicker">Статус эфира</div>
+      <div class="display off" id="display">Не в эфире</div>
+      <div class="program" id="prog"></div>
+      <div class="meta" id="desc">Проверка сигнала…</div>
+      <div class="actions">
+        <a class="btn btn-fill" href="https://kick.com/zyliasoft" target="_blank" rel="noopener">Смотреть на Kick</a>
+        <a class="btn btn-line" href="https://twitch.tv/telechanel_zystream" target="_blank" rel="noopener">Twitch</a>
+        <a class="btn btn-line" href="https://catcast.tv/zyliasoft" target="_blank" rel="noopener">Catcast</a>
+        <button type="button" class="btn btn-line" id="copyBtn">Копировать Kick</button>
+      </div>
+    </div>
+
+    <div class="monitor">
+      <iframe id="ifr" src="about:blank" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture;fullscreen" title="Kick"></iframe>
+      <div class="fall" id="pfall">Плеер недоступен</div>
+    </div>
+    <div class="monitor-cap">
+      <span>Плеер Kick</span>
+      <span id="pHint"></span>
+    </div>
+  </section>
+
+  <section class="side">
+    <div class="side-head">
+      <div class="label">Программа</div>
+      <h2>Сегодня</h2>
+      <div class="day" id="date"></div>
+    </div>
+
+    <div class="dev-bar" id="devBar">
+      <span>Режим разработчика</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="devToggle">Править программу</button>
+        <button type="button" id="devReset">Обновить с Gist</button>
+      </div>
+    </div>
+    <div class="dev-ed" id="devEd">
+      <div id="devRows"></div>
+      <label style="font-size:11px;font-weight:600;color:var(--dim)">GitHub token (gist)</label>
+      <input id="devToken" type="password" autocomplete="off" placeholder="ghp_…" style="width:100%;padding:8px 10px;font:inherit;font-size:13px;background:var(--bg);border:1px solid var(--line);color:var(--text);outline:none">
+      <div class="actions">
+        <button type="button" id="devAdd">+ Передача</button>
+        <button type="button" class="pri" id="devSave">Сохранить в Gist</button>
+      </div>
+      <div class="note">Сохранение напрямую в GitHub Gist. Token с правом <b>gist</b>. Можно вписать в поле ниже или в код: <code>DEV_GIST_TOKEN</code> в index.html. Не выкладывай файл с заполненным token публично.</div>
+    </div>
+
+    <div class="upcoming">
+      <div><div class="l">Далее</div><div class="v" id="nxShow">—</div></div>
+      <div><div class="l">Начало</div><div class="v" id="nxTime">—</div></div>
+      <div><div class="l">Через</div><div class="v" id="nxIn">—</div></div>
+    </div>
+
+    <div class="list" id="grid">
+      <div class="empty">Загрузка расписания…</div>
+    </div>
+
+    <div class="side-foot">
+      <div class="tags">
+        <span>Барбоскины</span>
+        <span>Три кота</span>
+        <span>Смешарики</span>
+        <span>Пин-Код</span>
+      </div>
+      <div class="ts" id="ts"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var CH='telechanel_zystream';
+  var KICK='zyliasoft';
+  var URL='https://kick.com/'+KICK;
+  var G1='https://gist.githubusercontent.com/zyliasoft-collab/223e22bd0039cefba911632a06e6f205/raw/schedule.json';
+  var G2='https://gist.githubusercontent.com/zyliasoft-collab/223e22bd0039cefba911632a06e6f205/raw/';
+  var sched=[], was=null;
+  var $=function(id){return document.getElementById(id)};
+
+
+
+  /* safe storage — localStorage throws in some sandboxes */
+  var memStore = {};
+  var canStore = false;
+  try {
+    var __ls = window.localStorage;
+    __ls.setItem('__zy_t', '1');
+    __ls.removeItem('__zy_t');
+    canStore = true;
+  } catch (e) {
+    canStore = false;
+  }
+  function storeGet(key) {
+    try {
+      if (canStore) return window.localStorage.getItem(key);
+    } catch (e) {}
+    return Object.prototype.hasOwnProperty.call(memStore, key) ? memStore[key] : null;
+  }
+  function storeSet(key, val) {
+    try {
+      if (canStore) { window.localStorage.setItem(key, val); return; }
+    } catch (e) {}
+    memStore[key] = val;
+  }
+  function storeDel(key) {
+    try {
+      if (canStore) window.localStorage.removeItem(key);
+    } catch (e) {}
+    try { delete memStore[key]; } catch (e2) {}
+  }
+
+
+
+  /* account + developer */
+
+  function importAuthFromHash(){
+    try{
+      var h = location.hash || '';
+      if(h.indexOf('zyauth=') === -1) return;
+      var raw = h.split('zyauth=')[1] || '';
+      raw = raw.split('&')[0];
+      if(!raw) return;
+      var json = decodeURIComponent(escape(atob(raw)));
+      var u = JSON.parse(json);
+      if(u && u.name){
+        storeSet('zy_user', JSON.stringify(u));
+      }
+      history.replaceState(null, '', location.pathname + location.search);
+    }catch(e){}
+  }
+  importAuthFromHash();
+
+  function getSession(){
+    try{return JSON.parse(storeGet('zy_user')||'null')}catch(e){return null}
+  }
+  function isDev(u){
+    if(!u||!u.name)return false;
+    return String(u.name).toLowerCase()==='zyliasoft' || u.dev===true;
+  }
+  function refreshAcc(){
+    try{
+      var u=getSession();
+      var btn=$('accBtn');
+      var bar=$('devBar');
+      if(u&&u.name){
+        btn.textContent='@'+u.name+(isDev(u)?' · dev':'');
+        btn.href='https://zystrimregistred.netlify.app/';
+        if(isDev(u)) bar.className='dev-bar on';
+        else {bar.className='dev-bar';$('devEd').className='dev-ed'}
+      }else{
+        btn.textContent='Войти';
+        btn.href='https://zystrimregistred.netlify.app/';
+        bar.className='dev-bar';
+        $('devEd').className='dev-ed';
+      }
+    }catch(e){}
+  }
+  refreshAcc();
+
+  var GIST_ID='223e22bd0039cefba911632a06e6f205';
+  /* Впиши token сюда сам, если не хочешь вводить каждый раз:
+     var DEV_GIST_TOKEN='ghp_...';
+     Никому не отправляй файл с заполненным token. */
+  var DEV_GIST_TOKEN='';
+
+  function loadSched(){
+    fetch(G1+'?t='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.ok?r:fetch(G2+'?t='+Date.now(),{cache:'no-store'})})
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(data){
+        if(!Array.isArray(data))throw 0;
+        sched=data.map(function(x){return{time:String(x.time||'').trim(),title:String(x.title||'—').trim(),year:String(x.year||'').trim()}}).filter(function(x){return x.time});
+        render();
+      }).catch(function(){$('grid').innerHTML='<div class="empty">Не удалось загрузить расписание</div>'});
+  }
+
+  function saveSchedToGist(arr, token){
+    var bodyContent = JSON.stringify(arr, null, 2);
+    return fetch('https://api.github.com/gists/'+GIST_ID, {
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer '+token,
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      cache: 'no-store'
+    }).then(function(r){
+      if(!r.ok) throw new Error('Gist read HTTP '+r.status);
+      return r.json();
+    }).then(function(gist){
+      var files = gist.files || {};
+      var fname = 'schedule.json';
+      var names = Object.keys(files);
+      if(names.indexOf('schedule.json') === -1 && names.length){
+        fname = names[0];
+      }
+      var payload = { files: {} };
+      payload.files[fname] = { content: bodyContent };
+      return fetch('https://api.github.com/gists/'+GIST_ID, {
+        method: 'PATCH',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer '+token,
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body: JSON.stringify(payload)
+      });
+    }).then(function(r){
+      if(!r.ok){
+        return r.json().catch(function(){return {}}).then(function(j){
+          var msg = (j && j.message) ? j.message : ('HTTP '+r.status);
+          throw new Error(msg);
+        });
+      }
+      return r.json();
+    });
+  }
+
+  /* dev editor */
+  function buildEditor(){
+    var box=$('devRows');
+    var html='';
+    var list=sched.length?sched.slice():[{time:'12:00',title:'Новая передача',year:''}];
+    list.forEach(function(it,i){
+      html+='<div class="row" data-i="'+i+'">';
+      html+='<input class="t" type="text" value="'+esc(it.time)+'" placeholder="20:30">';
+      html+='<input class="n" type="text" value="'+esc(it.title)+'" placeholder="Название">';
+      html+='<input class="y" type="text" value="'+esc(it.year||'')+'" placeholder="год/до">';
+      html+='<button type="button" class="del" data-del="'+i+'">×</button>';
+      html+='</div>';
+    });
+    box.innerHTML=html;
+    box.querySelectorAll('.del').forEach(function(b){
+      b.onclick=function(){
+        var rows=[].slice.call(box.querySelectorAll('.row'));
+        if(rows.length<=1)return;
+        b.parentNode.remove();
+      };
+    });
+  }
+  function readEditor(){
+    var rows=[].slice.call(document.querySelectorAll('#devRows .row'));
+    return rows.map(function(r){
+      return{
+        time:(r.querySelector('.t').value||'').trim(),
+        title:(r.querySelector('.n').value||'').trim()||'—',
+        year:(r.querySelector('.y').value||'').trim()
+      };
+    }).filter(function(x){return x.time});
+  }
+  $('devToggle').onclick=function(){
+    if(!isDev(getSession())){toast('Нужен аккаунт разработчика');return}
+    var ed=$('devEd');
+    var on=ed.className.indexOf('on')===-1;
+    ed.className='dev-ed'+(on?' on':'');
+    if(on){
+      buildEditor();
+      var inp=$('devToken');
+      if(inp && DEV_GIST_TOKEN){inp.placeholder='token задан в коде (DEV_GIST_TOKEN)';}
+    }
+  };
+  $('devAdd').onclick=function(){
+    var box=$('devRows');
+    var div=document.createElement('div');
+    div.className='row';
+    div.innerHTML='<input class="t" type="text" value="20:00" placeholder="20:30"><input class="n" type="text" value="" placeholder="Название"><input class="y" type="text" value="" placeholder="год/до"><button type="button" class="del">×</button>';
+    box.appendChild(div);
+    div.querySelector('.del').onclick=function(){
+      if(box.querySelectorAll('.row').length<=1)return;
+      div.remove();
+    };
+  };
+  $('devSave').onclick=function(){
+    if(!isDev(getSession())){toast('Нет доступа');return}
+    var arr=readEditor();
+    if(!arr.length){toast('Добавьте хотя бы одну передачу');return}
+    var token=($('devToken').value||'').trim()||(DEV_GIST_TOKEN||'').trim();
+    if(!token){toast('Введите GitHub token или впишите DEV_GIST_TOKEN в коде');return}
+    arr.sort(function(a,b){return pt(a.time)-pt(b.time)});
+    var btn=$('devSave');
+    btn.disabled=true;
+    btn.textContent='Сохранение…';
+    saveSchedToGist(arr, token)
+      .then(function(){
+        sched=arr;
+        render();
+        toast('Сохранено в Gist');
+        $('devEd').className='dev-ed';
+        $('devToken').value='';
+      })
+      .catch(function(err){
+        toast('Ошибка: '+(err && err.message ? err.message : 'не удалось'));
+      })
+      .then(function(){
+        btn.disabled=false;
+        btn.textContent='Сохранить в Gist';
+      });
+  };
+  $('devReset').onclick=function(){
+    if(!isDev(getSession())){toast('Нет доступа');return}
+    $('devEd').className='dev-ed';
+    loadSched();
+    toast('Загружено с Gist');
+  };
+
+
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function mins(){var n=new Date();return n.getHours()*60+n.getMinutes()}
+  function pt(s){var p=String(s).split(':');var h=+p[0],m=+p[1];return (isNaN(h)||isNaN(m))?-1:h*60+m}
+  function fm(m){if(m<0)return '—';if(m<60)return m+' мин';var h=Math.floor(m/60),r=m%60;return r?h+' ч '+r+' мин':h+' ч'}
+  function toast(t){var e=$('toast');e.textContent=t;e.className='toast show';clearTimeout(toast._t);toast._t=setTimeout(function(){e.className='toast'},2800)}
+
+  (function(){
+    var ifr=$('ifr'),fall=$('pfall');
+    if(location.protocol==='file:'){
+      ifr.style.display='none';fall.className='fall show';fall.textContent='Нужен хостинг';return;
+    }
+    ifr.src='https://player.kick.com/'+encodeURIComponent(KICK);
+    $('pHint').textContent='kick.com/'+KICK;
+  })();
+
+  $('copyBtn').onclick=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(URL).then(function(){toast('Ссылка скопирована')}).catch(function(){toast('Ошибка')});
+  };
+
+  refreshAcc();
+
+  function curIdx(){var m=mins(),c=-1;for(var i=0;i<sched.length;i++){var t=pt(sched[i].time);if(t>=0&&t<=m)c=i}return c}
+
+  function render(){
+    var grid=$('grid');
+    if(!sched.length){grid.innerHTML='<div class="empty">Расписание пусто</div>';updNext();return}
+    var now=new Date(),m=mins(),c=curIdx(),n=c+1;
+    $('date').textContent=now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    var html='';
+    for(var i=0;i<sched.length;i++){
+      var it=sched[i],t=pt(it.time),isN=i===c,isX=i===n&&n<sched.length,isP=t>=0&&t<m&&!isN;
+      var cls='item'+(isN?' now':'')+(isX?' next':'')+(isP?' past':'');
+      html+='<div class="'+cls+'"><div class="t">'+esc(it.time)+'</div><div class="n">';
+      if(isN)html+='<small>Сейчас</small>';
+      else if(isX)html+='<small>Далее</small>';
+      html+=esc(it.title)+'</div>';
+      html+='<div class="y">'+(it.year?esc(it.year):'')+'</div></div>';
+    }
+    grid.innerHTML=html;updNext();
+  }
+
+  function updNext(){
+    var m=mins(),c=curIdx(),n=c+1;
+    if(n>=0&&n<sched.length){
+      var it=sched[n],t=pt(it.time);
+      $('nxShow').textContent=it.title;$('nxTime').textContent=it.time;$('nxIn').textContent=fm(t-m);
+    }else if(sched.length&&c<0){
+      var it=sched[0],t=pt(it.time),d=t-m;if(d<0)d+=1440;
+      $('nxShow').textContent=it.title;$('nxTime').textContent=it.time;$('nxIn').textContent=fm(d);
+    }else{
+      $('nxShow').textContent='—';$('nxTime').textContent='—';$('nxIn').textContent='—';
+    }
+  }
+
+  function check(){
+    fetch('https://decapi.me/twitch/uptime/'+CH+'?t='+Date.now(),{cache:'no-store'})
+      .then(function(r){return r.text()})
+      .then(function(up){
+        up=(up||'').trim();
+        var live=!/offline/i.test(up)&&up.length>0&&!/not found/i.test(up);
+        if(was===false&&live)toast('В эфире');
+        if(was===true&&!live)toast('Эфир завершён');
+        was=live;
+        var b=$('badge'), d=$('display');
+        if(live){
+          b.className='badge on';$('badgeT').textContent='live';
+          d.textContent='В эфире';d.className='display on';
+          $('kicker').textContent='Прямой эфир';
+          $('desc').textContent=up?up:'Трансляция идёт';
+          fetch('https://decapi.me/twitch/title/'+CH+'?t='+Date.now(),{cache:'no-store'})
+            .then(function(r){return r.text()}).then(function(t){
+              t=(t||'').trim();
+              $('prog').textContent=(t&&!/offline/i.test(t)&&!/not found/i.test(t))?t:'';
+            }).catch(function(){$('prog').textContent=''});
+        }else{
+          b.className='badge off';$('badgeT').textContent='offline';
+          d.textContent='Не в эфире';d.className='display off';
+          $('kicker').textContent='Статус эфира';
+          $('prog').textContent='';
+          $('desc').textContent='Канал офлайн';
+        }
+      }).catch(function(){
+        $('badge').className='badge';$('badgeT').textContent='error';
+        $('display').textContent='Ошибка';$('display').className='display';
+        $('desc').textContent='Не удалось проверить статус';
+      });
+    $('ts').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  loadSched();check();
+  setInterval(check,60000);
+  setInterval(render,60000);
+  setInterval(loadSched,5*60*1000);
+})();
+</script>
+</body>
+</html>

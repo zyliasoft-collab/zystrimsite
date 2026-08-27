@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>Вход — telechanel_zystream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --panel:#111;
+  --line:rgba(255,255,255,.1);
+  --text:#f5f5f5;
+  --soft:#a3a3a3;
+  --dim:#737373;
+  --mark:#e11d48;
+  --ok:#22c55e;
+}
+body{
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+
+.top{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 20px;border-bottom:1px solid var(--line);
+}
+.top .brand{font-weight:700;font-size:14px}
+.top .brand span{color:var(--soft);font-weight:500}
+.top a{font-size:13px;font-weight:600;color:var(--soft)}
+.top a:hover{color:var(--text)}
+
+.wrap{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:32px 16px;
+}
+.card{
+  width:100%;max-width:400px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:32px 28px;
+}
+.card h1{
+  font-size:22px;font-weight:800;letter-spacing:-.03em;
+  margin-bottom:6px;
+}
+.card .sub{font-size:13px;color:var(--soft);margin-bottom:24px;line-height:1.45}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:12px 16px;
+  font-size:14px;font-weight:600;
+  border:1px solid var(--line);
+  background:transparent;color:var(--text);
+  cursor:pointer;transition:background .15s,border-color .15s,opacity .15s;
+  margin-bottom:10px;
+}
+.btn:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.18)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn svg{width:18px;height:18px;flex-shrink:0}
+.btn-google{opacity:.5}
+.btn-zy{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-zy:hover{opacity:.92;background:var(--text)}
+
+.hint{
+  font-size:11px;color:var(--dim);text-align:center;margin:-2px 0 18px;
+}
+
+.div{
+  display:flex;align-items:center;gap:12px;
+  margin:18px 0;color:var(--dim);font-size:11px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.div::before,.div::after{
+  content:'';flex:1;height:1px;background:var(--line);
+}
+
+label{
+  display:block;font-size:12px;font-weight:600;color:var(--soft);
+  margin-bottom:6px;
+}
+input{
+  width:100%;padding:11px 12px;
+  background:var(--bg);border:1px solid var(--line);
+  color:var(--text);margin-bottom:14px;outline:none;
+}
+input:focus{border-color:rgba(255,255,255,.25)}
+input::placeholder{color:var(--dim)}
+
+.msg{
+  display:none;font-size:13px;font-weight:500;
+  padding:10px 12px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.msg.err{display:block;border-color:rgba(225,29,72,.4);color:#fb7185;background:rgba(225,29,72,.08)}
+.msg.ok{display:block;border-color:rgba(34,197,94,.35);color:#4ade80;background:rgba(34,197,94,.08)}
+
+.tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--line)}
+.tabs button{
+  flex:1;padding:10px;font-size:13px;font-weight:600;
+  background:transparent;color:var(--dim);border:0;cursor:pointer;
+  border-right:1px solid var(--line);
+}
+.tabs button:last-child{border-right:0}
+.tabs button.on{background:rgba(255,255,255,.06);color:var(--text)}
+
+.panel{display:none}
+.panel.on{display:block}
+
+.user-box{display:none}
+.user-box.on{display:block}
+.user-box p{font-size:14px;margin-bottom:16px;color:var(--soft)}
+.user-box strong{color:var(--text)}
+
+.foot{
+  text-align:center;padding:16px;font-size:12px;color:var(--dim);
+  border-top:1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="brand" href="https://zystrim.netlify.app/">telechanel_<span>zystream</span></a>
+  <a href="https://zystrim.netlify.app/">← На главную</a>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <div id="guestView">
+      <h1>Вход в аккаунт</h1>
+      <p class="sub">Войдите через zy_register, чтобы открыть профиль на этом устройстве.</p>
+
+      <button type="button" class="btn btn-google" disabled title="Недоступно">
+        <svg viewBox="0 0 24 24"><path fill="#ea4335" d="M12 10.2v3.6h5.1c-.2 1.2-1.5 3.6-5.1 3.6-3.1 0-5.6-2.5-5.6-5.6S8.9 6.2 12 6.2c1.7 0 2.9.7 3.6 1.4l2.4-2.4C16.5 3.8 14.5 3 12 3 7 3 3 7 3 12s4 9 9 9c5.2 0 8.6-3.6 8.6-8.8 0-.6 0-1-.1-1.5H12z"/><path fill="#4285f4" d="M12 10.2v3.6h5.1c-.2 1.2-1.5 3.6-5.1 3.6-3.1 0-5.6-2.5-5.6-5.6"/><path fill="#fbbc05" d="M6.9 14.2l-1.5 1.1C6.5 17.5 9 19.5 12 19.5c2.4 0 3.9-.9 4.8-1.8"/><path fill="#34a853" d="M12 6.2c1.7 0 2.9.7 3.6 1.4l2.4-2.4C16.5 3.8 14.5 3 12 3 9 3 6.5 5 5.4 7.5l1.7 1.3C7.7 7.2 9.6 6.2 12 6.2z"/></svg>
+        Войти через Google
+      </button>
+      <p class="hint">Google — недоступно</p>
+
+      <div class="div">или</div>
+
+      <div class="tabs">
+        <button type="button" class="on" data-tab="login">Вход</button>
+        <button type="button" data-tab="reg">Регистрация</button>
+      </div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="panel on" id="panelLogin">
+        <label for="loginName">Имя пользователя</label>
+        <input id="loginName" type="text" autocomplete="username" placeholder="nickname">
+        <label for="loginPass">Пароль</label>
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••">
+        <button type="button" class="btn btn-zy" id="btnLogin">Войти через zy_register</button>
+      </div>
+
+      <div class="panel" id="panelReg">
+        <label for="regName">Имя пользователя</label>
+        <input id="regName" type="text" autocomplete="username" placeholder="nickname">
+        <label for="regPass">Пароль</label>
+        <input id="regPass" type="password" autocomplete="new-password" placeholder="минимум 4 символа">
+        <label for="regPass2">Повтор пароля</label>
+        <input id="regPass2" type="password" autocomplete="new-password" placeholder="ещё раз">
+        <button type="button" class="btn btn-zy" id="btnReg">Создать аккаунт zy_register</button>
+      </div>
+    </div>
+
+    <div class="user-box" id="userView">
+      <h1>Вы вошли</h1>
+      <p>Аккаунт: <strong id="userName"></strong></p>
+      <button type="button" class="btn btn-zy" id="btnHome">На главную</button>
+      <button type="button" class="btn" id="btnOut">Выйти</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="foot">zy_register · telechanel_zystream</div>
+
+<script>
+(function(){
+  var KEY_USERS='zy_users';
+  var KEY_SESSION='zy_user';
+
+
+  /* safe storage — localStorage throws in some sandboxes */
+  var memStore = {};
+  var canStore = false;
+  try {
+    var __ls = window.localStorage;
+    __ls.setItem('__zy_t', '1');
+    __ls.removeItem('__zy_t');
+    canStore = true;
+  } catch (e) {
+    canStore = false;
+  }
+  function storeGet(key) {
+    try {
+      if (canStore) return window.localStorage.getItem(key);
+    } catch (e) {}
+    return Object.prototype.hasOwnProperty.call(memStore, key) ? memStore[key] : null;
+  }
+  function storeSet(key, val) {
+    try {
+      if (canStore) { window.localStorage.setItem(key, val); return; }
+    } catch (e) {}
+    memStore[key] = val;
+  }
+  function storeDel(key) {
+    try {
+      if (canStore) window.localStorage.removeItem(key);
+    } catch (e) {}
+    try { delete memStore[key]; } catch (e2) {}
+  }
+
+
+  function $(id){return document.getElementById(id)}
+  function showMsg(text, ok){
+    var m=$('msg');
+    m.textContent=text;
+    m.className='msg '+(ok?'ok':'err');
+  }
+  function clearMsg(){$('msg').className='msg';$('msg').textContent=''}
+
+  function getUsers(){
+    try{return JSON.parse(storeGet(KEY_USERS)||'{}')}catch(e){return {}}
+  }
+  function saveUsers(u){storeSet(KEY_USERS,JSON.stringify(u))}
+
+  function getSession(){
+    try{return JSON.parse(storeGet(KEY_SESSION)||'null')}catch(e){return null}
+  }
+  function setSession(u){
+    if(u)storeSet(KEY_SESSION,JSON.stringify(u));
+    else storeDel(KEY_SESSION);
+  }
+
+  var MAIN_URL='https://zystrim.netlify.app/';
+  function goMain(session){
+    if(session && session.name){
+      try{
+        var payload = btoa(unescape(encodeURIComponent(JSON.stringify(session))));
+        location.href = MAIN_URL + '#zyauth=' + payload;
+        return;
+      }catch(e){}
+    }
+    location.href = MAIN_URL;
+  }
+
+  function refresh(){
+    var s=getSession();
+    if(s&&s.name){
+      $('guestView').style.display='none';
+      $('userView').className='user-box on';
+      $('userName').textContent=s.name;
+    }else{
+      $('guestView').style.display='block';
+      $('userView').className='user-box';
+    }
+  }
+
+  document.querySelectorAll('.tabs button').forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll('.tabs button').forEach(function(x){x.className=''});
+      b.className='on';
+      clearMsg();
+      var t=b.getAttribute('data-tab');
+      $('panelLogin').className='panel'+(t==='login'?' on':'');
+      $('panelReg').className='panel'+(t==='reg'?' on':'');
+    };
+  });
+
+  var FIXED_DEV_USER='zyliasoft';
+  var FIXED_DEV_PASS='zydev2026';
+
+  $('btnReg').onclick=function(){
+    clearMsg();
+    var name=($('regName').value||'').trim().toLowerCase();
+    var p1=$('regPass').value||'';
+    var p2=$('regPass2').value||'';
+    if(name===FIXED_DEV_USER){
+      showMsg('Это имя занято — используйте вход',false);return;
+    }
+    if(!/^[a-z0-9_]{3,20}$/.test(name)){
+      showMsg('Имя: 3–20 символов (a-z, 0-9, _)',false);return;
+    }
+    if(p1.length<4){showMsg('Пароль минимум 4 символа',false);return}
+    if(p1!==p2){showMsg('Пароли не совпадают',false);return}
+    var users=getUsers();
+    if(users[name]){showMsg('Такой пользователь уже есть',false);return}
+    users[name]={pass:p1,created:Date.now(),dev:false};
+    saveUsers(users);
+    setSession({name:name,via:'zy_register',dev:false});
+    showMsg('Аккаунт создан',true);
+    setTimeout(function(){goMain(getSession())},600);
+  };
+
+  $('btnLogin').onclick=function(){
+    clearMsg();
+    var name=($('loginName').value||'').trim().toLowerCase();
+    var pass=$('loginPass').value||'';
+    if(name===FIXED_DEV_USER && pass===FIXED_DEV_PASS){
+      setSession({name:FIXED_DEV_USER,via:'zy_register',dev:true});
+      showMsg('Вход выполнен',true);
+      setTimeout(function(){goMain(getSession())},500);
+      return;
+    }
+    var users=getUsers();
+    if(!users[name]||users[name].pass!==pass){
+      showMsg('Неверное имя или пароль',false);return;
+    }
+    var rec=users[name];
+    setSession({name:name,via:'zy_register',dev:!!rec.dev});
+    showMsg('Вход выполнен',true);
+    setTimeout(function(){goMain(getSession())},500);
+  };
+
+  $('btnOut').onclick=function(){
+    setSession(null);
+    refresh();
+    clearMsg();
+  };
+  $('btnHome').onclick=function(){goMain(getSession())};
+  function bindEnter(id, fn){var el=$(id);if(!el)return;el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();fn();}});}
+  bindEnter('loginPass',function(){$('btnLogin').click()});
+  bindEnter('loginName',function(){$('btnLogin').click()});
+
+  refresh();
+})();
+</script>
+</body>
+</html>
